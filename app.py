@@ -3,6 +3,7 @@
 from contextlib import asynccontextmanager
 import hmac
 import os
+from pathlib import Path
 
 import torch
 from fastapi import FastAPI, Header, HTTPException, status
@@ -39,8 +40,14 @@ def verify_api_key(candidate: str | None) -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global classifier
-    device = 0 if torch.cuda.is_available() else -1
-    classifier = pipeline("sentiment-analysis", model=MODEL_DIR, tokenizer=MODEL_DIR, device=device)
+    if Path(MODEL_DIR).is_dir():
+        device = 0 if torch.cuda.is_available() else -1
+        classifier = pipeline("sentiment-analysis", model=MODEL_DIR, tokenizer=MODEL_DIR, device=device)
+    else:
+        # The initial Serverless deployment can run before its Network Volume is
+        # attached. Keep /ping healthy so the endpoint can be configured, but do
+        # not serve predictions until the model is mounted and a worker restarts.
+        print(f"Model directory is not mounted yet: {MODEL_DIR}")
     yield
     classifier = None
 
