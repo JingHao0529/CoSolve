@@ -1,0 +1,31 @@
+modules = ["nodejs-24", "python-base-3.13", "postgresql-16"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+GRAFILAB_CHAT_MODEL = "grafilab/deepseek-v4-flash"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-bbe7a359-7fc0-44b1-81a6-8213b2ab2d5d"

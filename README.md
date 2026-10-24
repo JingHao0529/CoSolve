@@ -1,206 +1,90 @@
-> [!IMPORTANT]
-> ## 📁 Submission Documents & Templates
-> **All required submission templates are in the Google Drive folder below. Download them before you start.**
->
-> ### 👉 [**OPEN THE GOOGLE DRIVE FOLDER**](https://drive.google.com/drive/folders/1xw7c2aN8N-at8hPEULzkcU76e_FFb0Ef) 👈
+# CoSolve
 
----
+CoSolve is a complaint-resolution workspace for turning negative customer reviews into consistent, manager-reviewed follow-up. Review imports are classified with AI; only reviews identified as Negative enter the active complaint views.
 
-# Project Name
+## Product features
 
-> A one-sentence description of what your project does and who it is for.
+- **CSV and XLSX intake:** Import review exports, read populated workbook sheets, match tracked duplicates, and automatically prepare clear matches.
+- **Negative-only inbox:** Runpod determines sentiment. Positive and Neutral reviews are filtered out; unknown reviews are checked first. AI errors are reported rather than treated as negative.
+- **AI-assisted investigation:** Runpod provides sentiment signals. Grafilab classifies complaints, generates resolution guidance, and drafts customer responses.
+- **Manager-led resolutions:** Review policy matches and proposed remedies, edit the recommendation, and approve it manually. CoSolve records compensation decisions; it does not itself transfer money through a bank.
+- **Customer communication:** Edit response drafts and send through a connected Gmail account. CoSolve records send status; provider acceptance is not proof of email delivery.
+- **Customer and order context:** Review available customer, order, complaint, and approved compensation history together.
+- **Audit and reporting:** Track case activity, refunds, resolution performance, sentiment, recurring issues, and customer-relations health.
+- **Adjustable workspace:** Switch light/dark themes and resize or collapse the sidebar.
 
----
+Every signed-in user currently has manager capabilities.
 
-## Team Information
+### Integration scope
 
-| Field                  | Details                                     |
-| ---------------------- | ------------------------------------------- |
-| **Team Name**          | Your Team Name                              |
-| **Team Domain**        | Domain 1 / Domain 2 *(choose one)*          |
-| **SDG Track (1–17)**   | e.g. SDG 11 — Sustainable Cities and Communities |
-| **Team Leader**        | Leader Name                                 |
-| **University**         | University Name(s)                          |
-| **Number of Members**  | e.g. 4                                      |
+The current complaint intake is file-based. Live WhatsApp and Google review synchronization are not connected. Gmail sending requires a connected Gmail account. Customer and order matching uses data available in the workspace; it does not imply a live connection to an external ordering platform.
 
-## Links
+## Repository layout
 
-| Resource          | Link                                           |
-| ----------------- | ---------------------------------------------- |
-| GitHub Repository | https://github.com/your-username/your-project  |
-| Live Demo         | https://your-project.replit.app                |
-| RunPod Endpoint   | https://api.runpod.ai/v2/your-endpoint-id      |
-| Slide Deck        | https://example.com/slides                     |
-| Demo Video        | https://example.com/demo-video                 |
+| Path | Purpose |
+| --- | --- |
+| `artifacts/cosolve/` | CoSolve web application |
+| `artifacts/api-server/` | CoSolve API and server-side workflows |
+| `artifacts/cosolve-presentation/` | Editable 20-slide CoSolve product presentation |
+| `artifacts/mockup-sandbox/` | Isolated component preview and canvas tooling |
+| `lib/` | Shared workspace packages, including database and API contracts |
+| `docs/` | Product workflow and verification documentation |
+| `scripts/` | Workspace maintenance and post-merge setup |
 
----
+This is a pnpm monorepo. The CoSolve app and API are configured as Replit workflows; open them from the Replit workspace to preview the application. The presentation is a separate slides artifact.
 
-## Overview
+## Getting started
 
-### Problem
-
-Describe the real-world problem you are solving in 2–4 sentences. Who is affected, and why does it matter?
-
-### Solution
-
-Explain how your project uses AI to solve the problem and what makes it valuable.
-
-### Key Features
-
-- **Feature 1** — Short description.
-- **Feature 2** — Short description.
-- **Feature 3** — Short description.
-
-### Tech Stack
-
-| Layer         | Technology                   |
-| ------------- | ---------------------------- |
-| Frontend      | e.g. HTML, React             |
-| Backend       | e.g. Python, Flask / FastAPI |
-| Database      | e.g. PostgreSQL, SQLite      |
-| AI / Compute  | RunPod (GPU)                 |
-| Hosting / Dev | Replit                       |
-
----
-
-## Project Structure
-
-```
-.
-├── docs/                    # Screenshots, diagrams
-├── runpod/
-│   └── handler.py           # RunPod serverless handler (GPU workload)
-├── src/
-│   ├── main.py              # Application entry point
-│   └── utils.py             # Helper functions
-├── submission/              # Required submission documents
-│   ├── SDC2026_TeamName_Preliminary.pdf      # Preliminary submission
-│   ├── SDC2026_TeamName_TechDeclaration.pdf  # Technology declaration
-│   ├── SDC2026_TeamName_Replit_POU.pdf       # Replit proof of use
-│   └── SDC2026_TeamName_Runpod_POU.pdf       # RunPod proof of use
-├── tests/
-│   └── test_utils.py        # Unit tests
-├── .env.example             # Example environment variables
-├── .gitignore
-├── .replit                  # Replit run configuration
-├── LICENSE
-├── requirements.txt         # Python dependencies
-└── README.md
-```
-
-### Architecture
-
-```
-User ──► Replit (App / API) ──► RunPod Endpoint (GPU model)
-                │
-                └──► Response returned to user
-```
-
----
-
-## How to Run
-
-### Option 1 — Run on Replit (Recommended)
-
-1. Open the [Replit Project](https://replit.com/@your-username/your-project), or import this repository via **Create Repl → Import from GitHub**.
-2. Open the **Secrets** tab (🔒) and add the variables listed in `.env.example`:
-   - `RUNPOD_API_KEY`
-   - `RUNPOD_ENDPOINT_ID`
-3. Click **Run**. Replit uses the `.replit` file to start `python src/main.py`.
-
-### Option 2 — Run Locally
+Use a Node.js version supported by the workspace and pnpm, then install dependencies from the repository root:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/your-project.git
-cd your-project
-
-# 2. Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Configure environment variables
-cp .env.example .env            # then fill in your values
-
-# 5. Run the app
-python src/main.py
+pnpm install
 ```
 
-### Run Tests
+In Replit, run the configured workflows:
+
+- **CoSolve web:** `pnpm --filter @workspace/cosolve run dev`
+- **CoSolve API:** `pnpm --filter @workspace/api-server run dev`
+- **Presentation:** `pnpm --filter @workspace/cosolve-presentation run dev`
+
+The component preview server is managed separately; it is not required to run CoSolve.
+
+## Configuration
+
+Use Replit Secrets for credentials and environment-specific values. Never commit API keys, passwords, tokens, or `.env` files.
+
+The AI workflow is configured for Runpod sentiment plus Grafilab classification and response drafting. Set the applicable values through Replit Secrets:
+
+- `COSOLVE_API_KEY`
+- `COSOLVE_RUNPOD_API_KEY`
+- `COSOLVE_SENTIMENT_URL`
+- `GRAFILAB_API_KEY`
+- `GRAFILAB_MODEL`
+
+Clerk authentication and the connected database also require their Replit-provided configuration. Do not copy secret values into this file or into Git. Connect Gmail through the app's supported Replit integration flow before sending customer email.
+
+## Verification
+
+Run these commands from the repository root:
 
 ```bash
-python -m unittest discover tests
+# TypeScript checks across workspace packages
+pnpm run typecheck
+
+# API and CoSolve unit tests
+pnpm test
+
+# Browser test for the CSV/XLSX import and preparation flow
+pnpm --filter @workspace/api-server run test:csv:browser
+
+# Check, typecheck and build the slide presentation
+pnpm --filter @workspace/cosolve-presentation validate-slides
+pnpm --filter @workspace/cosolve-presentation typecheck
+pnpm --filter @workspace/cosolve-presentation build
 ```
 
----
+For database-backed integration tests, configure the development database as required by the test and app setup. Do not run development-data tests against production.
 
-## How We Use Replit *(Required)*
+## Uploaded data and privacy
 
-Describe how your team used Replit. For example:
-
-- **Development:** Collaborative coding in a shared Repl using Multiplayer.
-- **Hosting:** The app is deployed with Replit Deployments at the Live Demo link above.
-- **Secrets:** API keys are stored in Replit Secrets, never in the code.
-
-📄 Proof of use: [`submission/SDC2026_TeamName_Replit_POU.pdf`](submission/SDC2026_TeamName_Replit_POU.pdf)
-
-## How We Use RunPod *(Required)*
-
-Describe how your team used RunPod. For example:
-
-- **Workload:** Model inference (e.g. text generation, image processing) runs on a RunPod GPU.
-- **Setup:** `runpod/handler.py` is deployed as a **RunPod Serverless Endpoint**.
-- **Integration:** The Replit app sends requests to the endpoint using `RUNPOD_API_KEY` and `RUNPOD_ENDPOINT_ID`.
-
-Example request:
-
-```bash
-curl -X POST https://api.runpod.ai/v2/$RUNPOD_ENDPOINT_ID/runsync \
-  -H "Authorization: Bearer $RUNPOD_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"input": {"prompt": "Hello"}}'
-```
-
-📄 Proof of use: [`submission/SDC2026_TeamName_Runpod_POU.pdf`](submission/SDC2026_TeamName_Runpod_POU.pdf)
-
----
-
-## Challenges & Learnings
-
-- What challenges did you face, and how did you overcome them?
-- What did your team learn?
-
-## Future Improvements
-
-- [ ] Improvement 1
-- [ ] Improvement 2
-
-## Team
-
-| Name        | Role                | GitHub                                   |
-| ----------- | ------------------- | ---------------------------------------- |
-| Member Name | Team Lead / Backend | [@username](https://github.com/username) |
-| Member Name | Frontend            | [@username](https://github.com/username) |
-| Member Name | AI / RunPod         | [@username](https://github.com/username) |
-
----
-
-## Submission Checklist
-
-- [ ] Team name, domain (Domain 1 / Domain 2) and SDG track filled in
-- [ ] Slide deck link added
-- [ ] Demo video link added
-- [ ] Replit used, with proof of use in `submission/`
-- [ ] RunPod used, with proof of use in `submission/`
-- [ ] Preliminary submission completed (`SDC2026_TeamName_Preliminary.pdf`)
-- [ ] Technology declaration completed (`SDC2026_TeamName_TechDeclaration.pdf`)
-- [ ] Submission files renamed with your team name (replace `TeamName`)
-- [ ] "How to Run" steps verified
-- [ ] No API keys or secrets committed to the repository
-
-## License
-
-This project is licensed under the [Apache License 2.0](LICENSE).
+Review and complaint exports may contain customer information. Keep uploaded data out of the source repository and GitHub. The repository ignores the attached review CSV export pattern; check your GitHub repository and any existing Git history before publishing other customer data. Store credentials in Replit Secrets, not in source files.
