@@ -1,0 +1,998 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: CoSolve complaint resolution workspace API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: cosolve
+    description: Complaint resolution operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [cosolve]
+      summary: Get the complaint operations dashboard
+      responses:
+        "200":
+          description: Dashboard metrics and trend data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /analytics:
+    get:
+      operationId: getAnalytics
+      tags: [cosolve]
+      summary: Get analytics and recurring issue data
+      responses:
+        "200":
+          description: Analytics metrics and trends
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analytics"
+  /compensation-adjustments/pending:
+    get:
+      operationId: listPendingCompensationAdjustments
+      tags: [cosolve]
+      summary: List pending compensation adjustments for review
+      responses:
+        "200":
+          description: Pending compensation adjustments with their cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PendingCompensationAdjustment"
+        "401":
+          description: Sign-in is required
+  /email/sender:
+    get:
+      operationId: getEmailSender
+      tags: [cosolve]
+      summary: Check the connected Gmail sender without sending email
+      responses:
+        "200":
+          description: Connected sender
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EmailSender" }
+        "503":
+          description: Gmail is not available to the app
+  /complaints/{id}/send-email:
+    post:
+      operationId: sendComplaintEmail
+      tags: [cosolve]
+      summary: Send a reviewed response in an email and text attachment through Gmail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ComplaintEmailInput" }
+      responses:
+        "200":
+          description: Gmail accepted the email or a previous receipt was replayed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ComplaintEmailReceipt" }
+        "400":
+          description: Invalid recipient or message
+        "401":
+          description: Sign-in required
+        "404":
+          description: Complaint not found
+        "409":
+          description: Closed case or unconfirmed earlier email
+        "502":
+          description: Gmail rejected the request or did not confirm its result
+        "503":
+          description: Gmail unavailable
+  /complaints/closed:
+    delete:
+      operationId: deleteClosedComplaints
+      tags: [cosolve]
+      summary: Permanently delete Closed cases and their linked case history after explicit confirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClosedCaseDeletionInput"
+      responses:
+        "200":
+          description: Deleted case count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deletedCount]
+                properties:
+                  deletedCount: { type: integer, minimum: 0 }
+        "400":
+          description: Explicit deletion confirmation is missing
+        "401":
+          description: Sign-in is required
+  /complaints:
+    get:
+      operationId: listComplaints
+      tags: [cosolve]
+      summary: List complaints
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string }
+        - name: search
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Complaint list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Complaint"
+    post:
+      operationId: createComplaint
+      tags: [cosolve]
+      summary: Submit a complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintInput"
+      responses:
+        "201":
+          description: Complaint submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "200":
+          description: Duplicate import skipped; returns the existing complaint with duplicate true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+  /complaint-imports/preview:
+    post:
+      operationId: previewComplaintImport
+      tags: [cosolve]
+      summary: Review tracked duplicates and possible historical matches without saving
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ImportPreviewInput" }
+      responses:
+        "200":
+          description: One review result per CSV row, in input order
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ImportRowReview" }
+        "401":
+          description: Sign-in required
+  /complaint-imports/link:
+    post:
+      operationId: linkComplaintImport
+      tags: [cosolve]
+      summary: Explicitly attach an import identity to a matching existing complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ImportLinkInput" }
+      responses:
+        "200":
+          description: Existing complaint linked, without creating a complaint
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Complaint" }
+        "401":
+          description: Sign-in required
+        "409":
+          description: Identity already linked elsewhere or candidate no longer matches
+  /complaints/{id}:
+    get:
+      operationId: getComplaint
+      tags: [cosolve]
+      summary: Get complaint details
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Complaint details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintDetail"
+        "404":
+          description: Complaint not found
+    patch:
+      operationId: updateComplaint
+      tags: [cosolve]
+      summary: Update complaint status and resolution
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintUpdate"
+      responses:
+        "200":
+          description: Updated complaint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "401":
+          description: Sign-in is required to update compensation
+        "409":
+          description: Monetary resolutions require manager approval; approved compensation cannot be changed or reopened
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /complaints/{id}/approve:
+    post:
+      operationId: approveComplaint
+      tags: [cosolve]
+      summary: Review, edit and atomically approve an open resolution
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolutionApprovalInput"
+      responses:
+        "200":
+          description: Approved resolution
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "401":
+          description: Sign-in is required
+        "404":
+          description: Complaint not found
+        "409":
+          description: Complaint is not awaiting approval or has already been approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /complaints/{id}/compensation-adjustments:
+    post:
+      operationId: requestCompensationAdjustment
+      tags: [cosolve]
+      summary: Request a reviewed correction to approved compensation
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompensationAdjustmentInput"
+      responses:
+        "201":
+          description: Adjustment submitted for review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompensationAdjustment"
+        "400":
+          description: Invalid adjustment request
+        "401":
+          description: Sign-in is required
+        "404":
+          description: Complaint not found
+        "409":
+          description: Complaint has no approved compensation or an adjustment is already pending
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /complaints/{id}/compensation-adjustments/{adjustmentId}/review:
+    post:
+      operationId: reviewCompensationAdjustment
+      tags: [cosolve]
+      summary: Approve or reject a requested compensation adjustment
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - name: adjustmentId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompensationAdjustmentReview"
+      responses:
+        "200":
+          description: Reviewed adjustment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompensationAdjustment"
+        "401":
+          description: Sign-in is required
+        "404":
+          description: Complaint or adjustment not found
+        "409":
+          description: Adjustment is no longer reviewable or the approved compensation changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /complaints/{id}/classify:
+    post:
+      operationId: classifyComplaint
+      tags: [cosolve]
+      summary: Classify a complaint with AI
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: AI classification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Classification"
+  /complaints/{id}/recommend:
+    post:
+      operationId: recommendResolution
+      tags: [cosolve]
+      summary: Generate a policy-aware resolution recommendation
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Proposed resolution
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recommendation"
+  /complaints/{id}/draft-response:
+    post:
+      operationId: draftResponse
+      tags: [cosolve]
+      summary: Draft a customer-ready response with AI
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Drafted customer response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DraftResponse"
+  /whatsapp/status:
+    get:
+      operationId: getWhatsappIntakeStatus
+      tags: [cosolve]
+      summary: Check WhatsApp intake setup without returning secrets
+      responses:
+        "200":
+          description: WhatsApp webhook setup status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsappIntakeStatus"
+  /whatsapp/messages:
+    get:
+      operationId: listWhatsappMessages
+      tags: [cosolve]
+      summary: List WhatsApp messages awaiting staff review
+      responses:
+        "200":
+          description: Pending WhatsApp messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsappMessageList"
+  /whatsapp/messages/{id}/create-case:
+    post:
+      operationId: createCaseFromWhatsappMessage
+      tags: [cosolve]
+      summary: Convert a reviewed WhatsApp message into a case
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "201":
+          description: Created complaint case
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+  /whatsapp/messages/{id}/ignore:
+    post:
+      operationId: ignoreWhatsappMessage
+      tags: [cosolve]
+      summary: Dismiss a reviewed WhatsApp message
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Message dismissed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsappMessageAction"
+  /webhooks/whatsapp:
+    get:
+      operationId: verifyWhatsappWebhook
+      tags: [cosolve]
+      summary: Verify the WhatsApp Business webhook subscription
+      parameters:
+        - name: hub.mode
+          in: query
+          required: false
+          schema: { type: string }
+        - name: hub.verify_token
+          in: query
+          required: false
+          schema: { type: string }
+        - name: hub.challenge
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Webhook verification challenge
+          content:
+            text/plain:
+              schema: { type: string }
+    post:
+      operationId: receiveWhatsappWebhook
+      tags: [cosolve]
+      summary: Receive signed WhatsApp Business message deliveries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WhatsappWebhookPayload"
+      responses:
+        "200":
+          description: Delivery accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [received, queued]
+                properties:
+                  received: { type: integer }
+                  queued: { type: integer }
+  /customers:
+    get:
+      operationId: listCustomers
+      tags: [cosolve]
+      summary: List customers and their complaint health
+      responses:
+        "200":
+          description: Customer list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+  /customers/{id}:
+    get:
+      operationId: getCustomer
+      tags: [cosolve]
+      summary: Get customer orders and complaint history
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Customer profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDetail"
+  /audit-log:
+    get:
+      operationId: listAuditLog
+      tags: [cosolve]
+      summary: List complaint, refund, and improvement audit events
+      responses:
+        "200":
+          description: Audit events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditEvent"
+  /policies:
+    get:
+      operationId: listPolicies
+      tags: [cosolve]
+      summary: List resolution policies
+      responses:
+        "200":
+          description: Resolution policy rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Policy"
+    post:
+      operationId: createPolicy
+      tags: [cosolve]
+      summary: Add a resolution policy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyInput"
+      responses:
+        "201":
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+  /policies/{id}:
+    patch:
+      operationId: updatePolicy
+      tags: [cosolve]
+      summary: Update a resolution policy
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyUpdate"
+      responses:
+        "200":
+          description: Updated policy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status: { type: string }
+      required: [status]
+    EmailSender:
+      type: object
+      required: [emailAddress]
+      properties:
+        emailAddress: { type: string, format: email }
+    ComplaintEmailInput:
+      type: object
+      required: [recipient, message]
+      properties:
+        recipient: { type: string, format: email, maxLength: 254 }
+        message: { type: string, minLength: 1, maxLength: 20000 }
+    ComplaintEmailReceipt:
+      type: object
+      required: [state, messageId, replayed]
+      properties:
+        state: { type: string, enum: [accepted] }
+        messageId: { type: string }
+        replayed: { type: boolean }
+    ClosedCaseDeletionInput:
+      type: object
+      required: [confirmation]
+      properties:
+        confirmation: { type: string, enum: ["DELETE CLOSED CASES"] }
+    Complaint:
+      type: object
+      required: [id, customerId, customerName, source, subject, message, category, rootCause, urgency, status, confidence, sentiment, orderId, orderValue, recommendation, recommendedAmount, responseDraft, assignedTo, createdAt, rating]
+      properties:
+        duplicate:
+          type: boolean
+          description: Present on submission responses; true when an imported complaint was already received
+        id: { type: string }
+        customerId: { type: string }
+        customerName: { type: string }
+        source: { type: string }
+        subject: { type: string }
+        message: { type: string }
+        category: { type: string }
+        rootCause: { type: string }
+        urgency: { type: string }
+        status: { type: string }
+        confidence: { type: number }
+        sentiment: { type: string }
+        orderId: { type: string }
+        orderValue: { type: number }
+        recommendation: { type: string }
+        recommendedAmount: { type: number }
+        responseDraft: { type: string }
+        resolutionNote: { type: string }
+        assignedTo: { type: string }
+        createdAt: { type: string, format: date-time }
+        rating: { type: integer }
+    ResolutionApprovalInput:
+      type: object
+      properties:
+        recommendation: { type: string, minLength: 1, maxLength: 500 }
+        recommendedAmount: { type: number, minimum: 0 }
+        resolutionNote: { type: string, maxLength: 5000 }
+        expectedRecommendation: { type: string }
+        expectedAmount: { type: number, minimum: 0 }
+    ComplaintDetail:
+      allOf:
+        - $ref: "#/components/schemas/Complaint"
+        - type: object
+          required: [history, orders, compensationHistory, compensationAdjustments]
+          properties:
+            customerEmail: { type: string }
+            history:
+              type: array
+              items: { $ref: "#/components/schemas/AuditEvent" }
+            orders:
+              type: array
+              items: { $ref: "#/components/schemas/Order" }
+            compensationHistory:
+              type: array
+              items: { $ref: "#/components/schemas/Compensation" }
+            compensationAdjustments:
+              type: array
+              items: { $ref: "#/components/schemas/CompensationAdjustment" }
+    ImportPreviewInput:
+      type: object
+      required: [rows]
+      properties:
+        rows:
+          type: array
+          minItems: 1
+          maxItems: 300
+          items: { $ref: "#/components/schemas/ComplaintInput" }
+    ImportLinkInput:
+      type: object
+      required: [row, caseId]
+      properties:
+        row: { $ref: "#/components/schemas/ComplaintInput" }
+        caseId: { type: string, minLength: 1 }
+    ImportRowReview:
+      type: object
+      required: [duplicate, candidates]
+      properties:
+        duplicate:
+          type: boolean
+        existingCase:
+          $ref: "#/components/schemas/Complaint"
+        candidates:
+          type: array
+          items: { $ref: "#/components/schemas/Complaint" }
+    ComplaintInput:
+      type: object
+      required: [customerName, source, subject, message]
+      properties:
+        imported:
+          type: boolean
+          description: Enables server-side duplicate protection for historical imports; omitted for manual intake
+        sourceId:
+          type: string
+          maxLength: 512
+          description: Stable case-sensitive external complaint ID, scoped to source, used only with imported true
+        originalReviewDate:
+          type: string
+          maxLength: 200
+          description: Unresolved date wording from an export, preserved in intake history without inventing a calendar date
+        customerName: { type: string, minLength: 1 }
+        customerEmail: { type: string }
+        source: { type: string }
+        subject: { type: string, minLength: 1 }
+        message: { type: string, minLength: 1 }
+        orderId: { type: string }
+        orderValue: { type: number }
+        createdAt: { type: string, format: date-time }
+        rating: { type: integer, minimum: 0, maximum: 5 }
+    WhatsappIntakeStatus:
+      type: object
+      required: [configured, provider, callbackPath, requiredSecretNames]
+      properties:
+        configured: { type: boolean }
+        provider: { type: string }
+        callbackPath: { type: string }
+        requiredSecretNames:
+          type: array
+          items: { type: string }
+    WhatsappMessage:
+      type: object
+      required: [id, customerName, phone, message, receivedAt, status]
+      properties:
+        id: { type: string }
+        customerName: { type: string }
+        phone: { type: string }
+        message: { type: string }
+        receivedAt: { type: string, format: date-time }
+        status: { type: string }
+    WhatsappMessageList:
+      type: array
+      items:
+        $ref: "#/components/schemas/WhatsappMessage"
+    WhatsappMessageAction:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        status: { type: string }
+    WhatsappWebhookPayload:
+      type: object
+      additionalProperties: true
+    ComplaintUpdate:
+      type: object
+      properties:
+        status: { type: string }
+        assignedTo: { type: string }
+        recommendation: { type: string }
+        recommendedAmount: { type: number }
+        responseDraft: { type: string }
+        resolutionNote: { type: string }
+        customerResponseSent: { type: string }
+        rating: { type: integer }
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+    Classification:
+      type: object
+      required: [category, rootCause, urgency, confidence, sentiment, summary]
+      properties:
+        category: { type: string }
+        rootCause: { type: string }
+        urgency: { type: string }
+        confidence: { type: number }
+        sentiment: { type: string }
+        summary: { type: string }
+    Recommendation:
+      type: object
+      required: [resolution, amount, rationale, policyMatch, requiresApproval]
+      properties:
+        resolution: { type: string }
+        amount: { type: number }
+        rationale: { type: string }
+        policyMatch: { type: string }
+        requiresApproval: { type: boolean }
+    DraftResponse:
+      type: object
+      required: [response]
+      properties:
+        response: { type: string }
+    Customer:
+      type: object
+      required: [id, name, email, phone, lifetimeValue, complaintCount, rating, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        lifetimeValue: { type: number }
+        complaintCount: { type: integer }
+        rating: { type: number }
+        status: { type: string }
+    CustomerDetail:
+      allOf:
+        - $ref: "#/components/schemas/Customer"
+        - type: object
+          required: [orders, complaints, compensationHistory]
+          properties:
+            orders:
+              type: array
+              items: { $ref: "#/components/schemas/Order" }
+            complaints:
+              type: array
+              items: { $ref: "#/components/schemas/Complaint" }
+            compensationHistory:
+              type: array
+              items: { $ref: "#/components/schemas/Compensation" }
+    Order:
+      type: object
+      required: [id, customerId, date, total, status, items]
+      properties:
+        id: { type: string }
+        customerId: { type: string }
+        date: { type: string, format: date-time }
+        total: { type: number }
+        status: { type: string }
+        items:
+          type: array
+          items: { type: string }
+    Compensation:
+      type: object
+      required: [id, caseId, type, amount, status, date]
+      properties:
+        id: { type: string }
+        caseId: { type: string }
+        type: { type: string }
+        amount: { type: number }
+        status: { type: string }
+        date: { type: string, format: date-time }
+    CompensationAdjustment:
+      type: object
+      required: [id, caseId, compensationId, baseType, baseAmount, type, amount, amountDelta, rationale, status, requestedBy, reviewer, reviewNote, date, reviewedAt]
+      properties:
+        id: { type: string }
+        caseId: { type: string }
+        compensationId: { type: string }
+        baseType: { type: string }
+        baseAmount: { type: number }
+        type: { type: string }
+        amount: { type: number }
+        amountDelta: { type: number }
+        rationale: { type: string }
+        status: { type: string }
+        requestedBy: { type: string }
+        reviewer: { type: ["string", "null"] }
+        reviewNote: { type: ["string", "null"] }
+        date: { type: string, format: date-time }
+        reviewedAt: { type: ["string", "null"], format: date-time }
+    PendingCompensationAdjustment:
+      type: object
+      required: [id, caseId, caseSubject, customerName, type, amount, amountDelta, rationale, requesterName, date]
+      properties:
+        id: { type: string }
+        caseId: { type: string }
+        caseSubject: { type: string }
+        customerName: { type: string }
+        type: { type: string }
+        amount: { type: number }
+        amountDelta: { type: number }
+        rationale: { type: string }
+        requesterName: { type: string }
+        date: { type: string, format: date-time }
+    CompensationAdjustmentInput:
+      type: object
+      required: [type, amount, rationale]
+      properties:
+        type: { type: string, minLength: 1, maxLength: 200 }
+        amount: { type: number, minimum: 0, multipleOf: 0.01 }
+        rationale: { type: string, minLength: 1, maxLength: 2000 }
+    CompensationAdjustmentReview:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [approve, reject] }
+        reviewNote: { type: string, maxLength: 2000 }
+    AuditEvent:
+      type: object
+      required: [id, caseId, action, actor, details, createdAt]
+      properties:
+        id: { type: string }
+        caseId: { type: string }
+        action: { type: string }
+        actor: { type: string }
+        details: { type: string }
+        createdAt: { type: string, format: date-time }
+    Policy:
+      type: object
+      required: [id, name, description, category, maxAmount, approvalThreshold, enabled]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        category: { type: string }
+        maxAmount: { type: number }
+        approvalThreshold: { type: number }
+        enabled: { type: boolean }
+    PolicyInput:
+      type: object
+      required: [name, description, category, maxAmount, approvalThreshold]
+      properties:
+        name: { type: string, minLength: 1 }
+        description: { type: string }
+        category: { type: string }
+        maxAmount: { type: number }
+        approvalThreshold: { type: number }
+    PolicyUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        category: { type: string }
+        maxAmount: { type: number }
+        approvalThreshold: { type: number }
+        enabled: { type: boolean }
+    TrendPoint:
+      type: object
+      required: [label, complaints, refunds, satisfaction]
+      properties:
+        label: { type: string }
+        complaints: { type: integer }
+        refunds: { type: number }
+        satisfaction: { type: number }
+    Dashboard:
+      type: object
+      required: [totalComplaints, openCases, pendingApprovals, refundExposure, avgResolutionHours, csat, monthlyRefunds, priorityCount, trends]
+      properties:
+        totalComplaints: { type: integer }
+        openCases: { type: integer }
+        pendingApprovals: { type: integer }
+        refundExposure: { type: number }
+        avgResolutionHours: { type: number }
+        csat: { type: number }
+        monthlyRefunds: { type: number }
+        priorityCount: { type: integer }
+        trends:
+          type: array
+          items: { $ref: "#/components/schemas/TrendPoint" }
+    Issue:
+      type: object
+      required: [name, count, change, sentiment]
+      properties:
+        name: { type: string }
+        count: { type: integer }
+        change: { type: number }
+        sentiment: { type: string }
+    Analytics:
+      type: object
+      required: [trends, issues, resolutionBreakdown, sentimentScore, avgResponseHours, firstContactResolution, refundRate]
+      properties:
+        trends:
+          type: array
+          items: { $ref: "#/components/schemas/TrendPoint" }
+        issues:
+          type: array
+          items: { $ref: "#/components/schemas/Issue" }
+        resolutionBreakdown:
+          type: array
+          items: { $ref: "#/components/schemas/ResolutionMetric" }
+        sentimentScore: { type: number }
+        avgResponseHours: { type: number }
+        firstContactResolution: { type: number }
+        refundRate: { type: number }
+    ResolutionMetric:
+      type: object
+      required: [name, value]
+      properties:
+        name: { type: string }
+        value: { type: integer }

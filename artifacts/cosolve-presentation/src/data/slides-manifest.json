@@ -1,0 +1,29 @@
+[
+  {
+    "id": "b4c21d43-0eb6-4a1d-b720-0db73cca1001",
+    "position": 1,
+    "filepath": "src/pages/slides/CoSolve.tsx",
+    "title": "CoSolve",
+    "description": "AI-assisted complaint resolution.",
+    "speakerNotes": ""
+  },
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1002","position":2,"filepath":"src/pages/slides/Problem.tsx","title":"Complaints get lost. Decisions become inconsistent.","description":"The complaint-management problem.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1003","position":3,"filepath":"src/pages/slides/Workspace.tsx","title":"One workspace, from complaint to closure.","description":"The connected CoSolve workspace.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1004","position":4,"filepath":"src/pages/slides/Workflow.tsx","title":"A clear path through every complaint.","description":"The seven-stage resolution flow.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1005","position":5,"filepath":"src/pages/slides/FileImport.tsx","title":"Drop in a file. Start the workflow.","description":"Automatic CSV and XLSX intake.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1006","position":6,"filepath":"src/pages/slides/NegativeOnly.tsx","title":"Only negative reviews reach the Inbox.","description":"AI sentiment-based inclusion.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1007","position":7,"filepath":"src/pages/slides/Inbox.tsx","title":"Know what needs attention next.","description":"Inbox, priority queue and pending approvals.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1008","position":8,"filepath":"src/pages/slides/Investigation.tsx","title":"Investigate with the context in view.","description":"Customer, order and review context.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1009","position":9,"filepath":"src/pages/slides/DualAI.tsx","title":"Two AI roles. One reviewable workflow.","description":"Runpod and Grafilab responsibilities.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1010","position":10,"filepath":"src/pages/slides/Guidance.tsx","title":"Refresh guidance. Review the recommendation.","description":"Editable AI resolution guidance.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1011","position":11,"filepath":"src/pages/slides/ManagerApproval.tsx","title":"The manager makes the final decision.","description":"Manager-led approval and financial safeguards.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1012","position":12,"filepath":"src/pages/slides/CustomerEmail.tsx","title":"From draft to customer-ready email.","description":"Grafilab drafts and Gmail communication.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1013","position":13,"filepath":"src/pages/slides/CaseClosure.tsx","title":"Close the case. Keep the follow-up.","description":"Closure, follow-up notes and confirmed deletion.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1014","position":14,"filepath":"src/pages/slides/CustomerHistory.tsx","title":"See the history behind every complaint.","description":"Customer, order, complaint and compensation history.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1015","position":15,"filepath":"src/pages/slides/ResolutionPolicies.tsx","title":"Make compensation rules explicit.","description":"Policy rules, thresholds and manager access.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1016","position":16,"filepath":"src/pages/slides/AuditLog.tsx","title":"Every decision leaves a record.","description":"Audit history, refunds and recorded improvements.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1017","position":17,"filepath":"src/pages/slides/Analytics.tsx","title":"See financial risk and resolution performance.","description":"Financial and operational analytics.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1018","position":18,"filepath":"src/pages/slides/ServiceHealth.tsx","title":"Find patterns beyond the individual case.","description":"Recurring issues, agent overview and customer health.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1019","position":19,"filepath":"src/pages/slides/Interface.tsx","title":"A calm interface for a complex workflow.","description":"Themes, adjustable navigation and clear states.","speakerNotes":""},
+  {"id":"b4c21d43-0eb6-4a1d-b720-0db73cca1020","position":20,"filepath":"src/pages/slides/WowFactors.tsx","title":"The wow factors, in one workflow.","description":"CoSolve's distinctive end-to-end capabilities.","speakerNotes":""}
+]

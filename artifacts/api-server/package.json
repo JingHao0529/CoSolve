@@ -1,0 +1,45 @@
+{
+  "name": "@workspace/api-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
+    "build": "node ./build.mjs",
+    "start": "node --enable-source-maps ./dist/index.mjs",
+    "test": "node --experimental-strip-types --test src/routes/cosolve/*.test.mjs",
+    "test:imports:integration": "node --test src/routes/cosolve/import-dedup.integration.mjs",
+    "test:csv:browser": "node --test test/csv-import.browser.test.mjs",
+    "test:import-review:integration": "node --test src/routes/cosolve/import-review.integration.mjs",
+    "test:approvals:integration": "node --test src/routes/cosolve/resolution-approval.integration.mjs",
+    "test:whatsapp:integration": "node --experimental-strip-types --test src/routes/cosolve/whatsapp.integration.mjs",
+    "set-staff-role": "node scripts/set-staff-role.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.operator.json --noEmit"
+  },
+  "dependencies": {
+    "@clerk/express": "^2.1.81",
+    "@clerk/shared": "^4.41.0",
+    "@replit/connectors-sdk": "^0.5.0",
+    "@workspace/api-zod": "workspace:*",
+    "@workspace/db": "workspace:*",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "drizzle-orm": "catalog:",
+    "express": "^5.3.0",
+    "http-proxy-middleware": "^4.2.0",
+    "openai": "^7.40.0",
+    "pino": "^9.14.0",
+    "pino-http": "^10.5.0"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "catalog:",
+    "esbuild": "0.28.2",
+    "esbuild-plugin-pino": "^2.3.3",
+    "pg": "^8.23.1",
+    "pino-pretty": "^13.2.0",
+    "thread-stream": "3.1.0"
+  }
+}
