@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "CoSolve"
+description = "A complaint resolution workspace that brings customer issues together, guides staff through consistent investigations and policy-based remedies, and tracks service health."
+version = "1.0.0"
+id = "artifacts/cosolve"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22738
+
+[services.development]
+run = "pnpm --filter @workspace/cosolve run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cosolve", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cosolve/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22738"
+BASE_PATH = "/"

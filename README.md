@@ -55,6 +55,47 @@ CoSolve provides a single workspace for recording, reviewing, and resolving cust
 | AI Assistance | Grafilab OpenAI-compatible language-model API |
 | Hosting / Development | Replit |
 
+## Project Structure
+
+```text
+.
+├── docs/                    # Architecture and existing verification notes
+├── runpod/
+│   ├── handler.py           # Launcher for the unchanged root Python service
+│   └── README.md            # API, Docker, and Network Volume configuration
+├── src/README.md            # Maps the template to the TypeScript workspaces
+├── artifacts/
+│   ├── cosolve/             # Replit React application and frontend tests
+│   ├── api-server/          # Replit Express API and backend tests
+│   ├── cosolve-presentation/# Presentation source from the Replit export
+│   └── mockup-sandbox/      # Supporting design workspace
+├── lib/                     # Database, API specification, generated client/schema
+├── scripts/                 # Existing workspace tooling
+├── submission/
+│   ├── SDC2026_JobHadFourBros_Preliminary.pdf
+│   ├── SDC2026_JobHadFourBros_TechDeclaration.pdf
+│   ├── SDC2026_JobHadFourBros_Replit_POU.pdf
+│   ├── SDC2026_JobHadFourBros_Runpod_POU.pdf
+│   └── CoSolve.pdf
+├── tests/README.md          # Entry point for the existing test suites
+├── .env.example
+├── .replit                  # Existing Replit configuration
+├── app.py                   # Existing RunPod FastAPI implementation
+├── Dockerfile               # Existing RunPod image build
+├── requirements.txt         # Python inference dependencies only
+├── package.json             # Node application scripts and dependencies
+├── pnpm-workspace.yaml
+├── pnpm-lock.yaml
+├── LICENSE
+└── README.md
+```
+
+CoSolve adapts the template's Python application example to its existing React/Express
+pnpm workspaces. See [source map](src/README.md). The main app runs on Replit;
+Python runs the GPU sentiment service on RunPod. The existing root Dockerfile and
+`app.py` are preserved, including the model path on the attached Network Volume.
+See [architecture](docs/architecture.md) and [RunPod configuration](runpod/README.md).
+
 ## Architecture
 
 ```text
@@ -86,11 +127,25 @@ The resulting model, `sentiment-distilbert-v1`, was fine-tuned on RunPod GPU com
 
 ### Run on Replit
 
-1. Open the [CoSolve Replit project](https://replit.com/@yeyanggg/CoSolve-Complaint-Resolution) or import the GitHub repository into Replit.
-2. Add the required secrets in Replit. Keep keys out of source control. The application needs credentials for its external services, including RunPod, Grafilab, and Clerk.
-3. Install project dependencies with `pnpm install`.
-4. Start the development environment with `pnpm dev`.
+1. Open the [CoSolve Replit project](https://replit.com/@yeyanggg/CoSolve-Complaint-Resolution), or import this complete repository.
+2. Configure the service credentials listed in [.env.example](.env.example) using Replit Secrets. Keep browser publishable configuration separate from server secrets.
+3. Install the workspace dependencies with `pnpm install --frozen-lockfile` using Node.js 24.
+4. Use the existing Replit Project workflow. If setting up workflows in a fresh import, run the API with `pnpm --filter @workspace/api-server run dev` and `PORT=5000`; run the frontend with `pnpm --filter @workspace/cosolve run dev`, `PORT=5173`, and `BASE_PATH=/`. Configure Replit routing so browser `/api` requests reach the backend; Vite does not define an API proxy in this export.
 5. Open the web preview and sign in with an authorised staff account.
+
+A fresh database needs its schema provisioned using the `@workspace/db` package's
+`push` command against a development database. Review schema changes before applying
+them. Importing the source does not transfer the hosted database or service secrets.
+The original export has no root `pnpm dev` script; use the package commands above.
+The `.env.example` file documents configuration and is not automatically loaded.
+
+### Run Tests
+
+```sh
+pnpm test
+```
+
+See [test instructions](tests/README.md) for the existing unit and integration suites.
 
 ### RunPod Sentiment Service
 
@@ -107,6 +162,14 @@ The deployed RunPod endpoint is authenticated. The backend sends complaint text 
 - **Training:** RunPod GPU compute was used to fine-tune the DistilBERT sentiment classifier on review datasets.
 - **Inference:** The trained `sentiment-distilbert-v1` model is deployed as a RunPod Serverless endpoint.
 - **Integration:** The CoSolve backend calls the endpoint to analyse complaint text and uses the returned confidence to identify cases that need human review.
+
+## Submission Documents
+
+- [Preliminary submission](submission/SDC2026_JobHadFourBros_Preliminary.pdf)
+- [Technology declaration](submission/SDC2026_JobHadFourBros_TechDeclaration.pdf)
+- [Replit proof of use](submission/SDC2026_JobHadFourBros_Replit_POU.pdf)
+- [RunPod proof of use](submission/SDC2026_JobHadFourBros_Runpod_POU.pdf)
+- [CoSolve supporting document](submission/CoSolve.pdf)
 
 ## Challenges and Learnings
 
@@ -141,3 +204,10 @@ The deployed RunPod endpoint is authenticated. The backend sends complaint text 
 - [x] Technical tools declaration completed
 - [x] Export final submission documents to PDF using the required filenames
 - [x] No API keys or secrets included in this README
+
+- [ ] Verify a fresh Replit import and routing with the required secrets and development database
+- [ ] Confirm whether organisers require literal template source paths rather than equivalent TypeScript workspace paths
+
+## License
+
+See the repository [Apache License 2.0](LICENSE). Third-party code retains its own notices.

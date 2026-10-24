@@ -1,0 +1,28 @@
+kind = "slides"
+previewPath = "/cosolve-presentation/"
+title = "CoSolve — Features & Wow Factors"
+description = "A 20-slide SaaS Product Launch presentation of CoSolve's negative-only complaint intake, dual-provider AI workflow, manager approvals, customer email, policy controls, audit history and operational analytics."
+version = "1.0.0"
+id = "artifacts/cosolve-presentation"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/cosolve-presentation/" ]
+localPort = 19914
+
+[services.development]
+run = "pnpm --filter @workspace/cosolve-presentation run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cosolve-presentation", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/cosolve-presentation/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19914"
+BASE_PATH = "/cosolve-presentation/"
