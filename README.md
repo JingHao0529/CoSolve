@@ -126,9 +126,9 @@ The deployed RunPod endpoint is authenticated. The backend sends complaint text 
 | Name | Role |
 | --- | --- |
 | Wong Ye Yang | Team Leader |
-| Team member 2 | To be added |
-| Team member 3 | To be added |
-| Team member 4 | To be added |
+| Wong Jing Hao | Team Member |
+| Ian Lai Chang Zhen | Team Member |
+| Terrence Siew Yu Xi | Team Member |
 
 ## Submission Checklist
 
