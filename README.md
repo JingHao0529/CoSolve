@@ -20,8 +20,8 @@
 | GitHub Repository | [JingHao0529/CoSolve](https://github.com/JingHao0529/CoSolve) |
 | Live Demo | [co-solve-complaint-resolution.replit.app](https://co-solve-complaint-resolution.replit.app) |
 | RunPod Endpoint | `https://3ki1sxdqm833mw.api.runpod.ai` *(authenticated; no API keys are included in this repository)* |
-| Slide Deck | https://drive.google.com/file/d/1lJ3vuyz0EWFRKTNRcLl5P67GBRpljm6R/view?usp=sharing |
-| Demo Video | https://drive.google.com/file/d/1qoAEiqhO-FvItSuWnOT1zK5XKovKbx7R/view?usp=sharing |
+| Slide Deck | https://drive.google.com/file/d/1qoAEiqhO-FvItSuWnOT1zK5XKovKbx7R/view?usp=sharing |
+| Demo Video |  |
 
 ---
 
