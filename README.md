@@ -133,8 +133,8 @@ The deployed RunPod endpoint is authenticated. The backend sends complaint text 
 ## Submission Checklist
 
 - [x] Team name, domain, and SDG tracks filled in
-- [ ] Slide deck link added
-- [ ] Demo video link added
+- [x] Slide deck link added
+- [x] Demo video link added
 - [x] Replit used for development and deployment
 - [x] RunPod used for model training and serverless inference
 - [x] Preliminary proposal completed
